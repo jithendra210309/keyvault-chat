@@ -21,6 +21,15 @@
     <div class="chat-app-container">
         <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
         <aside class="chat-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h9m-3 0v3m0-3v-3"/></svg>
+                </div>
+                <div>
+                    <div class="brand-name">KeyVault</div>
+                    <div class="brand-subtitle">Local-first AI</div>
+                </div>
+            </div>
             <div class="sidebar-top">
                 <button class="new-chat-btn" id="btnNewChat">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
@@ -111,24 +120,25 @@
                             <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                         </svg>
                     </div>
-                    <h2 class="welcome-title">How can I help you today?</h2>
+                    <h2 class="welcome-title">System Online.</h2>
+                    <p class="welcome-subtitle">Local-first intelligence anchored to your private key vault. Select a model or start a new thread.</p>
                     
                     <div class="quick-prompts-grid">
-                        <button class="quick-prompt-card" data-prompt="Explain quantum computing in simple terms">
-                            <div class="quick-prompt-title">Explain quantum computing</div>
-                            <div class="quick-prompt-desc">in simple terms for a beginner</div>
+                        <button class="quick-prompt-card" data-prompt="Review my active keys and summarize provider health.">
+                            <div class="quick-prompt-title">Security Audit</div>
+                            <div class="quick-prompt-desc">Review local key rotation status and active session permissions.</div>
                         </button>
-                        <button class="quick-prompt-card" data-prompt="Write a clean CSS grid layout layout example">
-                            <div class="quick-prompt-title">CSS grid layout example</div>
-                            <div class="quick-prompt-desc">with modern styling and clean design</div>
+                        <button class="quick-prompt-card" data-prompt="Generate a TypeScript interface with strict schema validation.">
+                            <div class="quick-prompt-title">Snippet Generation</div>
+                            <div class="quick-prompt-desc">Generate TypeScript interfaces with enforced schema validation.</div>
                         </button>
-                        <button class="quick-prompt-card" data-prompt="Draft an email apologizing for a delay in shipping">
-                            <div class="quick-prompt-title">Draft a polite email</div>
-                            <div class="quick-prompt-desc">apologizing to a client for shipping delays</div>
+                        <button class="quick-prompt-card" data-prompt="Show me the status of my OpenAI and Anthropic keys.">
+                            <div class="quick-prompt-title">Vault Analysis</div>
+                            <div class="quick-prompt-desc">Check provider status, limits, and rotation readiness.</div>
                         </button>
-                        <button class="quick-prompt-card" data-prompt="Create a simple Python script that reads a CSV and plots a line chart">
-                            <div class="quick-prompt-title">Python data plotting</div>
-                            <div class="quick-prompt-desc">reads a CSV file and plots a simple chart</div>
+                        <button class="quick-prompt-card" data-prompt="Help me plan a local-first coding workflow using my BYOK setup.">
+                            <div class="quick-prompt-title">Workflow Plan</div>
+                            <div class="quick-prompt-desc">Build a personal AI coding routine around your own provider keys.</div>
                         </button>
                     </div>
                 </div>
@@ -147,7 +157,7 @@
                     </button>
                 </div>
                 <form class="chat-input-form" id="chatInputForm">
-                    <textarea class="chat-input-textarea" id="chatInput" rows="1" placeholder="Send a message..." required></textarea>
+                    <textarea class="chat-input-textarea" id="chatInput" rows="1" placeholder="Type a message or command..." required></textarea>
                     <button class="chat-send-btn" id="btnSend" type="submit" disabled title="Send message">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
                     </button>
