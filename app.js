@@ -841,6 +841,37 @@
     return row;
   }
 
+  function appendTypingBubble() {
+    const messagesBox = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.className = 'message-row assistant';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = 'AI';
+
+    const contentBox = document.createElement('div');
+    contentBox.className = 'message-content';
+
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator';
+    for (let i = 0; i < 3; i += 1) {
+      const dot = document.createElement('div');
+      dot.className = 'typing-dot';
+      indicator.appendChild(dot);
+    }
+
+    contentBox.appendChild(indicator);
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(contentBox);
+    row.appendChild(wrapper);
+    messagesBox.appendChild(row);
+    return row;
+  }
+
   // Model select options mapping
   function renderProviderSelectOptions() {
     const select = document.getElementById('modelSelector');
@@ -969,7 +1000,7 @@
     renderChatWindow();
 
     // Create BOT message shell with typing indicator
-    const botBubble = appendMessageBubble('assistant', '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>');
+    const botBubble = appendTypingBubble();
     scrollToBottom();
 
     const startTime = performance.now();
@@ -1036,9 +1067,14 @@
     await executeApiRequest();
   }
 
-  function updateBotBubbleError(bubbleEl, htmlContent) {
+  function updateBotBubbleError(bubbleEl, message) {
     const contentBox = bubbleEl.querySelector('.message-content');
-    contentBox.innerHTML = `<div style="color:#ef4444; font-weight:500;">âŒ Error: ${htmlContent}</div>`;
+    contentBox.textContent = '';
+    const errorBox = document.createElement('div');
+    errorBox.style.color = '#ef4444';
+    errorBox.style.fontWeight = '500';
+    errorBox.textContent = `Error: ${stripHtml(message)}`;
+    contentBox.appendChild(errorBox);
   }
 
   function isRateLimitError(err) {
