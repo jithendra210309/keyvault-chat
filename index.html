@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyVault Chat</title>
+    <meta name="description" content="Local-first BYOK AI chat workspace with auto-rotating API keys.">
+    <!-- PWA meta tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#202123">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <div class="chat-app-container">
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <aside class="chat-sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <button class="new-chat-btn" id="btnNewChat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+                    New Chat
+                </button>
+                <button class="sidebar-close-btn" id="btnSidebarClose" title="Close sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+
+            <!-- Chat History List -->
+            <div class="chat-history-container">
+                <div class="history-section-label">Chat History</div>
+                <div class="history-list" id="historyList">
+                    <!-- History items injected by JS -->
+                </div>
+            </div>
+
+            <!-- Sidebar Footer Options -->
+            <div class="sidebar-footer">
+                <button class="footer-item" id="btnToggleKeyManager">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    <span>Key Manager</span>
+                    <span class="active-keys-badge" id="sidebarActiveKeysBadge">0</span>
+                </button>
+                <button class="footer-item" id="btnToggleTheme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span id="themeText">Light Mode</span>
+                </button>
+                <button class="footer-item" id="btnClearHistory">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    <span>Clear Conversations</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN CHAT WINDOW â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <main class="chat-main" id="chatMain">
+            <!-- Top bar -->
+            <header class="chat-header">
+                <button class="sidebar-toggle-btn" id="btnSidebarOpen" title="Open sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                
+                <!-- Model Selector -->
+                <div class="model-selector-container">
+                    <select class="model-selector" id="modelSelector">
+                        <optgroup label="Google Gemini">
+                            <option value="gemini/gemini-2.5-flash" selected>Gemini 2.5 Flash</option>
+                            <option value="gemini/gemini-2.5-pro">Gemini 2.5 Pro</option>
+                        </optgroup>
+                        <optgroup label="OpenAI">
+                            <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                            <option value="openai/gpt-4o">GPT-4o</option>
+                        </optgroup>
+                        <optgroup label="Anthropic Claude">
+                            <option value="anthropic/claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+                            <option value="anthropic/claude-3-haiku-latest">Claude 3 Haiku</option>
+                        </optgroup>
+                        <optgroup label="DeepSeek">
+                            <option value="deepseek/deepseek-chat">DeepSeek V3 (Chat)</option>
+                            <option value="deepseek/deepseek-reasoner">DeepSeek R1 (Reasoner)</option>
+                        </optgroup>
+                        <optgroup label="Groq">
+                            <option value="groq/llama-3.3-70b-versatile">Llama 3.3 70B (Groq)</option>
+                            <option value="groq/mixtral-8x7b-32768">Mixtral 8x7B (Groq)</option>
+                        </optgroup>
+                        <optgroup label="Mistral">
+                            <option value="mistral/mistral-large-latest">Mistral Large</option>
+                        </optgroup>
+                        <!-- Custom provider options will be injected dynamically -->
+                    </select>
+                </div>
+
+                <div class="header-right-info" id="rotatorStatusBadge" title="Rotator Status">
+                    <span class="status-indicator-dot"></span>
+                    <span class="status-indicator-text" id="rotationStatusText">0 keys active</span>
+                </div>
+            </header>
+
+            <!-- Chat Area -->
+            <div class="chat-messages-container" id="chatMessages">
+                <!-- Welcome Screen / Empty state -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                        </svg>
+                    </div>
+                    <h2 class="welcome-title">How can I help you today?</h2>
+                    
+                    <div class="quick-prompts-grid">
+                        <button class="quick-prompt-card" data-prompt="Explain quantum computing in simple terms">
+                            <div class="quick-prompt-title">Explain quantum computing</div>
+                            <div class="quick-prompt-desc">in simple terms for a beginner</div>
+                        </button>
+                        <button class="quick-prompt-card" data-prompt="Write a clean CSS grid layout layout example">
+                            <div class="quick-prompt-title">CSS grid layout example</div>
+                            <div class="quick-prompt-desc">with modern styling and clean design</div>
+                        </button>
+                        <button class="quick-prompt-card" data-prompt="Draft an email apologizing for a delay in shipping">
+                            <div class="quick-prompt-title">Draft a polite email</div>
+                            <div class="quick-prompt-desc">apologizing to a client for shipping delays</div>
+                        </button>
+                        <button class="quick-prompt-card" data-prompt="Create a simple Python script that reads a CSV and plots a line chart">
+                            <div class="quick-prompt-title">Python data plotting</div>
+                            <div class="quick-prompt-desc">reads a CSV file and plots a simple chart</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Input Form -->
+            <div class="chat-input-container">
+                <div class="chat-input-tools" style="display:flex; gap:8px; margin-bottom:8px; max-width:720px; width:100%;">
+                    <button class="tool-btn" id="btnCreatePhoto" type="button" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); font-size:12px; font-weight:500; height:32px; padding:0 12px; border-radius:16px; cursor:pointer; transition:all 0.2s;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Photo Prompt</span>
+                    </button>
+                    <button class="tool-btn" id="btnCreateVideo" type="button" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); font-size:12px; font-weight:500; height:32px; padding:0 12px; border-radius:16px; cursor:pointer; transition:all 0.2s;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                        <span>Video Prompt</span>
+                    </button>
+                </div>
+                <form class="chat-input-form" id="chatInputForm">
+                    <textarea class="chat-input-textarea" id="chatInput" rows="1" placeholder="Send a message..." required></textarea>
+                    <button class="chat-send-btn" id="btnSend" type="submit" disabled title="Send message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                    </button>
+                </form>
+                <div class="chat-disclaimer">BYOK only: add your own provider keys locally. This project does not ship maintainer-owned API keys.</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• KEY MANAGER DIALOG MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="modal-overlay" id="keyManagerModal" style="display:none">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title">API Key Manager & Rotation</h2>
+                <button class="modal-close" id="btnCloseKeyManager">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            
+            <!-- Tab selector -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="tabKeys">Keys Dashboard</button>
+                <button class="modal-tab" data-tab="tabProviders">Custom Providers</button>
+                <button class="modal-tab" data-tab="tabLogs">Rotation Log</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- TAB 1: KEYS DASHBOARD -->
+                <div class="tab-content active" id="tabKeys">
+                    <!-- Stats Overview -->
+                    <div class="stats-row">
+                        <div class="mini-stat-card">
+                            <span class="mini-stat-val" id="valTotalKeys">0</span>
+                            <span class="mini-stat-lbl">Total Keys</span>
+                        </div>
+                        <div class="mini-stat-card">
+                            <span class="mini-stat-val" id="valActiveKeys">0</span>
+                            <span class="mini-stat-lbl">Active Keys</span>
+                        </div>
+                        <div class="mini-stat-card">
+                            <span class="mini-stat-val" id="valExhaustedKeys">0</span>
+                            <span class="mini-stat-lbl">Exhausted/Error</span>
+                        </div>
+                        <div class="mini-stat-card">
+                            <span class="mini-stat-val" id="valTotalRequests">0</span>
+                            <span class="mini-stat-lbl">Total Requests</span>
+                        </div>
+                    </div>
+
+                    <div class="section-actions-row">
+                        <div class="search-sort-group">
+                            <input type="text" class="modal-search-input" id="searchKeysInput" placeholder="Search keys...">
+                            <select class="modal-select" id="sortKeysSelect">
+                                <option value="newest">Newest first</option>
+                                <option value="usage-high">Most used</option>
+                                <option value="usage-low">Least used</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="btnOpenAddKey">Add Key</button>
+                    </div>
+
+                    <!-- Key List -->
+                    <div class="key-list-wrapper" id="keyListContainer">
+                        <!-- Table injected by JS -->
+                    </div>
+                </div>
+
+                <!-- TAB 2: CUSTOM PROVIDERS -->
+                <div class="tab-content" id="tabProviders" style="display:none">
+                    <div class="section-actions-row">
+                        <h3 class="inner-tab-title">Custom API Providers</h3>
+                        <button class="btn btn-primary" id="btnOpenAddProvider">Add Custom Provider</button>
+                    </div>
+                    <div class="provider-list-wrapper" id="providerListContainer">
+                        <!-- Provider grid injected by JS -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: ROTATION LOGS -->
+                <div class="tab-content" id="tabLogs" style="display:none">
+                    <div class="section-actions-row">
+                        <h3 class="inner-tab-title">Rotation Log Feed</h3>
+                        <button class="btn btn-ghost" id="btnClearLogs">Clear Log</button>
+                    </div>
+                    <div class="log-list-wrapper" id="logListContainer">
+                        <!-- Log lines injected by JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="btnExportData">Export Safe Config</button>
+                <button class="btn btn-ghost" id="btnImportData">Import Config</button>
+                <input type="file" id="importConfigInput" accept=".json" style="display:none">
+                <div style="flex-grow:1"></div>
+                <button class="btn btn-primary" id="btnSaveKeyManager">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ADD KEY MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="modal-overlay submodal" id="addKeyModal" style="display:none">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">Add API Key</h3>
+                <button class="modal-close" data-close="addKeyModal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="addKeyProvider">Provider</label>
+                    <select class="modal-select" id="addKeyProvider">
+                        <!-- Options injected by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="addKeyLabel">Label</label>
+                    <input type="text" class="modal-input" id="addKeyLabel" placeholder="e.g. Free Tier Key #1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="addKeyValue">API Key</label>
+                    <div class="input-with-action">
+                        <input type="password" class="modal-input" id="addKeyValue" placeholder="sk-... or AIza...">
+                        <button class="btn-toggle-vis" id="toggleKeyVis" type="button" title="Toggle visibility">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="addKeyLimit">Request Limit</label>
+                        <input type="number" class="modal-input" id="addKeyLimit" placeholder="1500" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="addKeyLimitPeriod">Reset Period</label>
+                        <select class="modal-select" id="addKeyLimitPeriod">
+                            <option value="daily">Daily</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="never">Never (lifetime)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="addKeyNotes">Notes</label>
+                    <input type="text" class="modal-input" id="addKeyNotes" placeholder="Optional notes...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-close="addKeyModal">Cancel</button>
+                <button class="btn btn-primary" id="btnSaveKey">Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ADD PROVIDER MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="modal-overlay submodal" id="addProviderModal" style="display:none">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Custom Provider</h3>
+                <button class="modal-close" data-close="addProviderModal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="providerName">Provider Name</label>
+                    <input type="text" class="modal-input" id="providerName" placeholder="e.g. Together AI">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="providerColor">Accent Color</label>
+                    <div class="color-picker-row">
+                        <input type="color" class="color-picker-input" id="providerColor" value="#8b5cf6">
+                        <span class="color-hex-text" id="providerColorHex">#8b5cf6</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="providerBaseUrl">Base API URL</label>
+                    <input type="text" class="modal-input" id="providerBaseUrl" placeholder="https://api.example.com/v1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="providerModels">Models <span class="form-hint">(comma-separated)</span></label>
+                    <input type="text" class="modal-input" id="providerModels" placeholder="model-a, model-b">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="providerDefaultLimit">Default Limit</label>
+                    <input type="number" class="modal-input" id="providerDefaultLimit" value="1000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-close="addProviderModal">Cancel</button>
+                <button class="btn btn-primary" id="btnSaveProvider">Add Provider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CONFIRM DIALOG MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="modal-overlay submodal" id="confirmModal" style="display:none">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmTitle">Confirm</h3>
+                <button class="modal-close" data-close="confirmModal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-close="confirmModal">Cancel</button>
+                <button class="btn btn-danger" id="btnConfirmAction">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
